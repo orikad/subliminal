@@ -205,7 +205,7 @@ class AgeParamType(click.ParamType):
 AGE = AgeParamType()
 
 PROVIDER = click.Choice(sorted(provider_manager.names()))
-
+GUESSIT_TYPE = click.Choice(["episode", "movie"])
 REFINER = click.Choice(sorted(refiner_manager.names()))
 
 dirs = AppDirs('subliminal')
@@ -281,6 +281,7 @@ def cache(ctx, clear_subliminal):
               'default is next to the video file.')
 @click.option('-e', '--encoding', type=click.STRING, metavar='ENC', help='Subtitle file encoding, default is to '
               'preserve original encoding.')
+@click.option('-t', '--type', type=GUESSIT_TYPE, metavar='TYPE', help='Override guessit\'s type guessing.')
 @click.option('-s', '--single', is_flag=True, default=False, help='Save subtitle without language code in the file '
               'name, i.e. use .srt extension. Do not use this unless your media player requires it.')
 @click.option('-f', '--force', is_flag=True, default=False, help='Force download even if a subtitle already exist.')
@@ -293,7 +294,7 @@ def cache(ctx, clear_subliminal):
 @click.option('-v', '--verbose', count=True, help='Increase verbosity.')
 @click.argument('path', type=click.Path(), required=True, nargs=-1)
 @click.pass_obj
-def download(obj, provider, refiner, language, age, directory, encoding, single, force, hearing_impaired, min_score,
+def download(obj, provider, refiner, language, age, directory, encoding, type, single, force, hearing_impaired, min_score,
              max_workers, archives, verbose, path):
     """Download best subtitles.
 
@@ -317,7 +318,10 @@ def download(obj, provider, refiner, language, age, directory, encoding, single,
             # non-existing
             if not os.path.exists(p):
                 try:
-                    video = Video.fromname(p)
+                    options = None
+                    if type:
+                        options = {'type' : type}
+                    video = Video.fromname(p, options=options)
                 except:
                     logger.exception('Unexpected error while collecting non-existing path %s', p)
                     errored_paths.append(p)

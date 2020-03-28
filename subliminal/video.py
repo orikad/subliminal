@@ -98,13 +98,16 @@ class Video(object):
         raise ValueError('The guess must be an episode or a movie guess')
 
     @classmethod
-    def fromname(cls, name):
+    def fromname(cls, name, options=None):
         """Shortcut for :meth:`fromguess` with a `guess` guessed from the `name`.
 
         :param str name: name of the video.
 
         """
-        return cls.fromguess(name, guessit(name))
+        if options is not None:
+            return cls.fromguess(name, guessit(name, options=options))
+        else:
+            return cls.fromguess(name, guessit(name))
 
     def __repr__(self):
         return '<%s [%r]>' % (self.__class__.__name__, self.name)
