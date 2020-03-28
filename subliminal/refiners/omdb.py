@@ -22,6 +22,7 @@ class OMDBClient(object):
         self.session.headers.update(headers or {})
         self.session.params['r'] = 'json'
         self.session.params['v'] = version
+        self.session.params['apikey'] = 'b36b394d'
 
     def get(self, id=None, title=None, type=None, year=None, plot='short', tomatoes=False):
         # build the params
