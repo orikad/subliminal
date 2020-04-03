@@ -357,7 +357,7 @@ def search_external_subtitles(path, directory=None):
     return subtitles
 
 
-def scan_video(path):
+def scan_video(path, options=None):
     """Scan a video from a `path`.
 
     :param str path: existing path to the video.
@@ -377,7 +377,7 @@ def scan_video(path):
     logger.info('Scanning video %r in %r', filename, dirpath)
 
     # guess
-    video = Video.fromguess(path, guessit(path))
+    video = Video.fromguess(path, guessit(path, options=options))
 
     # size and hashes
     video.size = os.path.getsize(path)
@@ -394,7 +394,7 @@ def scan_video(path):
     return video
 
 
-def scan_archive(path):
+def scan_archive(path, options=None):
     """Scan an archive from a `path`.
 
     :param str path: existing path to the archive.
@@ -431,7 +431,7 @@ def scan_archive(path):
         # guess
         rar_filename = rar_filenames[0]
         rar_filepath = os.path.join(dirpath, rar_filename)
-        video = Video.fromguess(rar_filepath, guessit(rar_filepath))
+        video = Video.fromguess(rar_filepath, guessit(rar_filepath, options=options))
 
         # size
         video.size = rar.getinfo(rar_filename).file_size
@@ -441,7 +441,7 @@ def scan_archive(path):
     return video
 
 
-def scan_videos(path, age=None, archives=True):
+def scan_videos(path, age=None, archives=True, options=None):
     """Scan `path` for videos and their subtitles.
 
     See :func:`refine` to find additional information for the video.
@@ -499,13 +499,13 @@ def scan_videos(path, age=None, archives=True):
             # scan
             if filename.endswith(VIDEO_EXTENSIONS):  # video
                 try:
-                    video = scan_video(filepath)
+                    video = scan_video(filepath, options=options)
                 except ValueError:  # pragma: no cover
                     logger.exception('Error scanning video')
                     continue
             elif archives and filename.endswith(ARCHIVE_EXTENSIONS):  # archive
                 try:
-                    video = scan_archive(filepath)
+                    video = scan_archive(filepath, options=options)
                 except (NotRarFile, RarCannotExec, ValueError):  # pragma: no cover
                     logger.exception('Error scanning archive')
                     continue
